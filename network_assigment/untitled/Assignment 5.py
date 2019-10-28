@@ -5,19 +5,20 @@ import itertools
 
 port = 8001
 ip_server = "145.24.222.103"
-json_file = '{"studentnr": “0964758”, "classname": "INF2C", "clientid": 1, "teamname": "TeamUno", ' \
-            '"ip":"192.168.1.2", "secret": None, "status": None}'
+json_file = '{"studentnr": "0964758", "classname": "INF2C", "clientid": 1, "teamname": "TeamUno", "ip": "84.80.42.132", "secret": None, "status": None}'
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 def client1():
-    connection = s.connect((ip_server, port))
-    print(connection.recv(500))
-    connection.send(bytes(json.dumps(json_file), encoding='utf-8'))
-    new_json_file = connection.recv(500)
-    connection.close()
-    new_connection = s.connect(("127.0.0.1", port))
-    new_connection.send(bytes(new_json_file), encoding='utf-8')
+    s.connect((ip_server, port))
+    print(s.recv(500))
+    s.send(bytes(json_file, encoding='utf8'))
+    print("message sent")
+    print(s.recv(1024))
+    # new_json_file = (s.recv(500)
+    s.close()
+    s.connect(("127.0.0.1", port))
+    # s.send(new_json_file)
 
 
 def client2():
@@ -48,9 +49,10 @@ def client2():
                 if json_to_dict is not None:
                     json_to_dict["clientid"] = 2
                     json_to_dict["ip"] = client_ip_list[0]
-                    connection = s.connect((ip_server, port))
-                    connection.recv(500)
-                    connection.send(bytes(json.dumps(json_to_dict), encoding='utf-8'))
+                    s.connect((ip_server, port))
+                    s.recv(500)
+                    s.send(bytes(json.dumps(json_to_dict), encoding='utf-8'))
+                    print(s.recv(1024))
                 else:
                     inputs.remove(io)
                     io.close()
