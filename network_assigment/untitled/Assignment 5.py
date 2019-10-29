@@ -5,7 +5,7 @@ import itertools
 
 port_host = 8001
 ip_server = "145.24.222.103"
-client2_ip = "127.0.0.1"
+client2_ip = "192.168.2.8"
 client1_id = 1
 client1_ip = socket.gethostbyname(socket.gethostname())
 
@@ -21,6 +21,7 @@ class Client:
         self.message = new_message
 
     def alter_json(self, id_client, ip):
+        self.message["studentnr"] = "0964758"
         self.message["classname"] = "INF2C"
         self.message["clientid"] = id_client
         self.message["teamname"] = "TeamUno"
@@ -61,10 +62,9 @@ inputs = [socket_client]
 
 # list of all ip addresses
 client_ip_list = []
+send_message = bool(int(input("Press 1 if you want to send a message, 0 to accept incoming messages")))
 
 while True:
-
-    send_message = bool(int(input("Press 1 if you want to send a message, 0 to accept incoming messages")))
 
     if not send_message:
         # unify all inputs and outputs and make the program not wait for input or output
@@ -76,15 +76,17 @@ while True:
             # if it is the turn of the server, accept possible connection requests
             if io == socket_client:
                 client_socket, client_address = socket_client.accept()
-                if client_socket is not None:
-                    inputs.append(client_socket)
-                    client_ip_list.append(client_address)
+                print("Accepted connection")
+                io.send(bytes("Client 2 says: Connection accepted", "utf-8"))
+                inputs.append(client_socket)
+                client_ip_list.append(client_address)
 
             # if it is not the turn of the server, then it is a client
             # receive the message (json string format), turn it into a dictionary and change the message
             # then send it to the main server
             else:
                 data = io.recv(1024).decode("utf-8")
+                print("Message received")
                 io.send(bytes("Client 2 says: Message received", "utf-8"))
                 json_to_dict = json.loads(data)
                 if json_to_dict["status"] == "waiting for message 2":
@@ -92,13 +94,16 @@ while True:
                     json_to_dict["clientid"] = this_client.id
                     json_to_dict["ip"] = socket.gethostbyname(socket.gethostname())
                     this_client.alter_message(json_to_dict)
+                    socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    response = this_client.send_to(socket_server, ip_server, port_host)()
+                    this_client.alter_message(json.loads(response))
                 else:
                     inputs.remove(io)
                     io.close()
 
     # send message code
     else:
-        if this_client.message.len() == 0 and send_message:
+        if len(this_client.message) == 0 and send_message:
             this_client.alter_json(client1_id, client1_ip)
             socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             response = this_client.send_to(socket_server, ip_server, port_host)()
@@ -108,7 +113,5 @@ while True:
             response = this_client.send_to(socket_client2, client2_ip, port_host)()
 
         elif this_client.message["status"] == "waiting for message 2" and send_message:
+            pass
 
-            socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            response = this_client.send_to(socket_server, ip_server, port_host)()
-            this_client.alter_message(json.loads(response))
