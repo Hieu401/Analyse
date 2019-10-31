@@ -3,7 +3,7 @@ import json
 
 port_host = 8001
 ip_server = "145.24.222.103"
-client2_ip = "192.168.2.8"
+client2_ip = None
 client1_id = 1
 client1_ip = socket.gethostbyname(socket.gethostname())
 
@@ -87,7 +87,7 @@ while True:
             this_client.alter_message(json.loads(response))
 
             socket_client2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            response = this_client.send_to(socket_client2, client2_ip, port_host)()
+            response = this_client.send_to(socket_client2, input("Please enter client 2 ip"), port_host)()
 
         elif this_client.message["status"] == "waiting for message 2" and send_message:
             pass
