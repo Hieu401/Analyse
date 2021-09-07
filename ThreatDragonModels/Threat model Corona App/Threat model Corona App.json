@@ -1,0 +1,11 @@
+{
+  "summary": {
+    "title": "Threat model Corona App",
+    "owner": "HackerMen",
+    "description": "Threat model of the Corona Melder App"
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": []
+  }
+}
